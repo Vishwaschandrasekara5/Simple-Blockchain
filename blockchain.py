@@ -31,7 +31,7 @@ class Blockchain:
                 check_proof = True
             else:
                 new_proof += 1
-        return new_proof  # Moved return out of loop!
+        return new_proof  
 
     def hash(self, block):
         encoded_block = json.dumps(block, sort_keys=True).encode()
@@ -60,7 +60,7 @@ blockchain = Blockchain()
 @app.route('/mine_block', methods=['GET'])
 def mine_block():
     previous_block = blockchain.get_previous_block()
-    previous_proof = previous_block['proof']  # FIXED: Used indexing, not function call
+    previous_proof = previous_block['proof']  
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
     block = blockchain.create_block(proof, previous_hash)
@@ -81,5 +81,14 @@ def get_chain():
     }
     return jsonify(response), 200
 
-
+@app.route('/is_valid', methods=['GET'])
+def is_valid():
+    is_valid = blockchain.is_chain_valid(blockchain.chain)
+    if is_valid:
+        response = {'message': 'The Blockchain is valid.'}
+    else:
+        response = {'message': 'The Blockchain is not valid!'}
+    return jsonify(response), 200
+ 
+    
 app.run(host='0.0.0.0', port=5000)
